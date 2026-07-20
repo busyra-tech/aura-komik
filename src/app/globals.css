@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0e0d12;
+  --surface: #17151d;
+  --surface-2: #201d28;
+  --foreground: #ece7e0;
+  --muted: #9992a3;
+  --accent: #e0402c;
+  --accent-ink: #ff5b3d;
+  --line: #2a2733;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-line: var(--line);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+}
+
+/* System-stack fonts (no external network fetch required).
+   Swap these for next/font/google (e.g. Bebas Neue + Plus Jakarta Sans)
+   once you have internet access at build time, for closer typography. */
+:root {
+  --font-display: Impact, "Arial Narrow Bold", "Haettenschweiler", sans-serif;
+  --font-sans: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Extra bottom padding on mobile for fixed bottom nav */
+@media (max-width: 767px) {
+  main {
+    padding-bottom: 4rem;
+  }
+}
+
+/* Halftone dot texture, evokes print manga screentone */
+.halftone {
+  background-image: radial-gradient(var(--line) 1px, transparent 1.2px);
+  background-size: 10px 10px;
+}
+
+/* Diagonal cut corner on comic cards, like a clipped panel */
+.panel-clip {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+.stamp-rotate {
+  transform: rotate(-8deg);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 8px;
+}
