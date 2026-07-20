@@ -9,6 +9,7 @@ export default async function Navbar() {
 	const currentLang = await getLanguage();
 
 	return (
+		<>
 		<header className="sticky top-0 z-50 border-b border-line/80 bg-background/90 backdrop-blur">
 			<div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
 				<Link href="/" className="flex items-center gap-3 shrink-0 group">
@@ -70,8 +71,10 @@ export default async function Navbar() {
 				</div>
 			</div>
 
+			</header>
+
 			{/* Mobile bottom navigation */}
-			<nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-line bg-background/95 backdrop-blur md:hidden">
+			<nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-line bg-background/95 backdrop-blur md:hidden pb-[env(safe-area-inset-bottom)]">
 				<Link
 					href="/"
 					className="flex flex-1 flex-col items-center gap-1 py-3 text-muted hover:text-foreground transition-colors"
@@ -94,6 +97,6 @@ export default async function Navbar() {
 					<span className="text-[10px]">{t.navbar.bookmarks}</span>
 				</Link>
 			</nav>
-		</header>
+		</>
 	);
 }
