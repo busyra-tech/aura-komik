@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
 	output: "standalone",
 	poweredByHeader: false,
 	images: {
+		unoptimized: true,
 		remotePatterns: [
 			{ protocol: "https", hostname: "assets.shngm.id" },
 			{ protocol: "https", hostname: "assets.shngm.io" },
