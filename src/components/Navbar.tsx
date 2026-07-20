@@ -41,7 +41,7 @@ export default async function Navbar() {
 
 				<form
 					action="/cari"
-					className="ml-auto flex flex-1 items-center gap-2 sm:max-w-xs"
+					className="ml-auto hidden flex-1 items-center gap-2 sm:flex sm:max-w-xs"
 				>
 					<div className="flex w-full items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5">
 						<Search size={16} className="text-muted shrink-0" />
