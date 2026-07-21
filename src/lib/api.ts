@@ -36,14 +36,16 @@ export function mangaToKomik(m: ApiManga, chapters: Chapter[] = []): Komik {
 	const format = m.taxonomy?.Format?.[0]?.name ?? "Manga";
 	const author = m.taxonomy?.Author?.[0]?.name ?? "Unknown";
 	const cover = m.cover_portrait_url || m.cover_image_url || "";
-	
+
 	// Map internal chapters if API returned them
-	const internalChapters: Chapter[] = m.chapters ? m.chapters.map(c => ({
-		id: c.chapter_id,
-		number: c.chapter_number,
-		title: `Chapter ${c.chapter_number}`,
-		releasedAt: c.created_at,
-	})) : chapters;
+	const internalChapters: Chapter[] = m.chapters
+		? m.chapters.map((c) => ({
+				id: c.chapter_id,
+				number: c.chapter_number,
+				title: `Chapter ${c.chapter_number}`,
+				releasedAt: c.created_at,
+			}))
+		: chapters;
 
 	return {
 		slug: m.manga_id,
@@ -97,6 +99,10 @@ export async function getPopular(
 	filter: "daily" | "weekly" | "all" = "daily",
 	pageSize = 12,
 ) {
+	if (filter === "all") {
+		return getTopBySort("popular", undefined, pageSize);
+	}
+
 	const data = await apiFetch<ApiManga[]>(
 		`/manga/top?filter=${filter}&page=1&page_size=${pageSize}`,
 	);
@@ -149,7 +155,7 @@ export type SortOrder = "asc" | "desc";
 // Map friendly sort key → API sort param + default order
 const SORT_MAP: Record<SortBy, { sort: string; defaultOrder: SortOrder }> = {
 	latest: { sort: "latest", defaultOrder: "desc" },
-	popular: { sort: "rank", defaultOrder: "asc" }, // rank asc = most popular first
+	popular: { sort: "rank", defaultOrder: "desc" },
 	rating: { sort: "rating", defaultOrder: "desc" },
 	bookmark: { sort: "bookmark", defaultOrder: "desc" },
 };
@@ -175,16 +181,39 @@ export async function searchKomikAdvanced(params: {
 		qs += `&genre_include=${encodeURIComponent(params.genre.toLowerCase())}`;
 	if (params.format) qs += `&format=${encodeURIComponent(params.format)}`;
 	if (params.status) qs += `&status=${encodeURIComponent(params.status)}`;
+
+	try {
+		const res = await fetch(`${BASE}${qs}`, {
+			headers: HEADERS,
+			next: { revalidate: 60 },
+		});
+		if (!res.ok) throw new Error(`API error ${res.status}`);
+		const json: ApiResponse<ApiManga[]> = await res.json();
+		return {
+			data: (json.data || []).map((m) => mangaToKomik(m)),
+			totalPage: json.meta?.total_page ?? 1,
+			totalRecord: json.meta?.total_record ?? 0,
+		};
+	} catch (error) {
+		console.error("searchKomikAdvanced fetch failed:", error);
+		return { data: [], totalPage: 1, totalRecord: 0 };
+	}
+}
+
+export async function getTopBySort(
+	sortBy: SortBy,
+	format?: string,
+	limit = 10,
+) {
+	const mapped = SORT_MAP[sortBy];
+	let qs = `/manga/list?page=1&page_size=${limit}&sort=${mapped.sort}&sort_order=${mapped.defaultOrder}`;
+	if (format) qs += `&format=${encodeURIComponent(format)}`;
 	const res = await fetch(`${BASE}${qs}`, {
 		headers: HEADERS,
-		next: { revalidate: 60 },
+		next: { revalidate: 300 },
 	});
 	const json: ApiResponse<ApiManga[]> = await res.json();
-	return {
-		data: (json.data || []).map((m) => mangaToKomik(m)),
-		totalPage: json.meta?.total_page ?? 1,
-		totalRecord: json.meta?.total_record ?? 0,
-	};
+	return (json.data || []).map((m) => mangaToKomik(m));
 }
 
 export async function getAllGenres(): Promise<

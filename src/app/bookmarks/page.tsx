@@ -39,40 +39,52 @@ function KomikMiniCard({
 	onRemove: () => void;
 }) {
 	return (
-		<div className="group relative flex gap-3 rounded-lg border border-line bg-surface p-3 hover:border-accent/50 transition-colors">
-			<Link href={`/komik/${item.slug}`} className="shrink-0">
-				<div className="relative h-16 w-12 overflow-hidden rounded">
-					{item.cover ? (
-						<Image
-							src={item.cover}
-							alt={item.title}
-							fill
-							className="object-cover"
-							sizes="48px"
-						/>
-					) : (
-						<div className="h-full w-full bg-surface-2" />
-					)}
-				</div>
-			</Link>
-			<div className="flex-1 min-w-0">
-				<Link href={`/komik/${item.slug}`}>
-					<p className="line-clamp-2 text-sm font-medium leading-tight hover:text-accent-ink transition-colors">
-						{item.title}
-					</p>
-				</Link>
-				<p className="mt-1 text-xs text-muted">{item.type}</p>
-				{item.latestChapterNumber && (
-					<p className="text-xs text-muted">Ch. {item.latestChapterNumber}</p>
+		<div className="group relative flex flex-col h-full gap-2">
+			<Link
+				href={`/komik/${item.slug}`}
+				className="relative shrink-0 aspect-[1/1.4] w-full overflow-hidden rounded-md border border-line bg-surface"
+			>
+				{item.cover ? (
+					<Image
+						src={item.cover}
+						alt={item.title}
+						fill
+						className="object-cover transition-transform duration-300 group-hover:scale-105"
+						sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+					/>
+				) : (
+					<div className="h-full w-full bg-surface-2" />
 				)}
-			</div>
+				<div className="absolute inset-x-0 top-0 h-12 bg-linear-to-b from-black/50 to-transparent pointer-events-none" />
+			</Link>
+
 			<button
-				onClick={onRemove}
-				className="shrink-0 self-start rounded p-1 text-muted opacity-0 group-hover:opacity-100 hover:text-accent transition-all"
+				onClick={(e) => {
+					e.preventDefault();
+					onRemove();
+				}}
+				className="absolute top-1.5 right-1.5 z-20 shrink-0 rounded bg-black/60 p-1.5 text-white opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all"
 				aria-label="Hapus"
 			>
 				<Trash2 size={14} />
 			</button>
+
+			<div className="flex flex-col grow pt-1">
+				<Link href={`/komik/${item.slug}`}>
+					<h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-foreground group-hover:text-accent-ink transition-colors mb-1">
+						{item.title}
+					</h3>
+				</Link>
+				<div className="mt-auto flex items-center justify-center gap-1.5 rounded-md bg-surface-2 px-2 py-1.5 text-[11px] font-semibold text-muted border border-line/50">
+					<span className="truncate">{item.type}</span>
+					{item.latestChapterNumber != null && (
+						<>
+							<span className="w-1 h-1 rounded-full bg-line" />
+							<span>CH.{item.latestChapterNumber}</span>
+						</>
+					)}
+				</div>
+			</div>
 		</div>
 	);
 }
@@ -85,53 +97,60 @@ function HistoryCard({
 	onRemove: () => void;
 }) {
 	return (
-		<div className="group relative flex gap-3 rounded-lg border border-line bg-surface p-3 hover:border-accent/50 transition-colors">
-			<Link href={`/komik/${item.slug}`} className="shrink-0">
-				<div className="relative h-16 w-12 overflow-hidden rounded">
-					{item.cover ? (
-						<Image
-							src={item.cover}
-							alt={item.title}
-							fill
-							className="object-cover"
-							sizes="48px"
-						/>
-					) : (
-						<div className="h-full w-full bg-surface-2" />
-					)}
-				</div>
+		<div className="group relative flex flex-col h-full gap-2">
+			<Link
+				href={`/komik/${item.slug}`}
+				className="relative shrink-0 aspect-[1/1.4] w-full overflow-hidden rounded-md border border-line bg-surface"
+			>
+				{item.cover ? (
+					<Image
+						src={item.cover}
+						alt={item.title}
+						fill
+						className="object-cover transition-transform duration-300 group-hover:scale-105"
+						sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+					/>
+				) : (
+					<div className="h-full w-full bg-surface-2" />
+				)}
+				<div className="absolute inset-x-0 top-0 h-12 bg-linear-to-b from-black/50 to-transparent pointer-events-none" />
 			</Link>
-			<div className="flex-1 min-w-0">
+
+			<button
+				onClick={(e) => {
+					e.preventDefault();
+					onRemove();
+				}}
+				className="absolute top-1.5 right-1.5 z-20 shrink-0 rounded bg-black/60 p-1.5 text-white opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all"
+				aria-label="Hapus"
+			>
+				<Trash2 size={14} />
+			</button>
+
+			<div className="flex flex-col grow pt-1">
 				<Link href={`/komik/${item.slug}`}>
-					<p className="line-clamp-2 text-sm font-medium leading-tight hover:text-accent-ink transition-colors">
+					<h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-foreground group-hover:text-accent-ink transition-colors mb-1">
 						{item.title}
-					</p>
+					</h3>
 				</Link>
-				<p className="mt-1 text-xs text-muted">
-					Terakhir baca: Ch. {item.chapterNumber}
-				</p>
-				<p className="text-xs text-muted/60">
-					{new Date(item.readAt).toLocaleDateString("id-ID", {
-						day: "numeric",
-						month: "short",
-						year: "numeric",
-					})}
-				</p>
-			</div>
-			<div className="flex shrink-0 flex-col items-end gap-1">
-				<Link
-					href={`/komik/${item.slug}/baca/${item.chapterId}`}
-					className="rounded bg-accent px-2 py-1 text-[10px] font-medium text-background hover:bg-accent-ink transition-colors"
-				>
-					Lanjut
-				</Link>
-				<button
-					onClick={onRemove}
-					className="rounded p-1 text-muted opacity-0 group-hover:opacity-100 hover:text-accent transition-all"
-					aria-label="Hapus"
-				>
-					<Trash2 size={14} />
-				</button>
+				<div className="mt-auto flex flex-col gap-1.5">
+					<div className="flex items-center justify-center gap-1.5 rounded-md bg-surface-2 px-2 py-1.5 text-[11px] font-semibold text-muted border border-line/50">
+						<span className="truncate">CH.{item.chapterNumber}</span>
+						<span className="w-1 h-1 rounded-full bg-line" />
+						<span className="truncate">
+							{new Date(item.readAt).toLocaleDateString("id-ID", {
+								day: "numeric",
+								month: "short",
+							})}
+						</span>
+					</div>
+					<Link
+						href={`/komik/${item.slug}/baca/${item.chapterId}`}
+						className="flex items-center justify-center rounded-md bg-accent px-2 py-1.5 text-[11px] font-semibold text-background hover:bg-accent-ink transition-colors"
+					>
+						Lanjut Baca
+					</Link>
+				</div>
 			</div>
 		</div>
 	);
@@ -147,7 +166,11 @@ export default function BookmarksPage() {
 	}, []);
 
 	if (!isMounted) {
-		return <div className="min-h-screen flex items-center justify-center text-muted">Loading...</div>;
+		return (
+			<div className="min-h-screen flex items-center justify-center text-muted">
+				Loading...
+			</div>
+		);
 	}
 
 	const bookmarks = store.bookmarks;
@@ -231,7 +254,7 @@ export default function BookmarksPage() {
 					{bookmarks.length === 0 ? (
 						<EmptyState label="Belum ada bookmark. Tambahkan dari halaman detail komik." />
 					) : (
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 							{bookmarks.map((b) => (
 								<KomikMiniCard
 									key={b.slug}
@@ -249,7 +272,7 @@ export default function BookmarksPage() {
 					{readlist.length === 0 ? (
 						<EmptyState label="Belum ada komik di read list." />
 					) : (
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 							{readlist.map((b) => (
 								<KomikMiniCard
 									key={b.slug}
@@ -267,7 +290,7 @@ export default function BookmarksPage() {
 					{history.length === 0 ? (
 						<EmptyState label="Belum ada riwayat baca." />
 					) : (
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 							{history.map((h) => (
 								<HistoryCard
 									key={h.slug}

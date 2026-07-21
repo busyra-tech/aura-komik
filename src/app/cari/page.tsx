@@ -9,18 +9,9 @@ import {
 import Link from "next/link";
 import { Search, ArrowUpDown } from "lucide-react";
 
+import { getDictionary } from "@/lib/i18n";
+
 const FORMATS = ["Manga", "Manhwa", "Manhua"];
-const STATUSES = [
-	{ label: "Ongoing", value: "ongoing" },
-	{ label: "Completed", value: "completed" },
-	{ label: "Hiatus", value: "hiatus" },
-];
-const SORT_OPTIONS: { label: string; value: SortBy }[] = [
-	{ label: "Terbaru", value: "latest" },
-	{ label: "Populer", value: "popular" },
-	{ label: "Rating", value: "rating" },
-	{ label: "Bookmark", value: "bookmark" },
-];
 
 export default async function SearchPage({
 	searchParams,
@@ -32,30 +23,48 @@ export default async function SearchPage({
 		status?: string;
 		sortBy?: string;
 		sortOrder?: string;
+		page?: string;
 	}>;
 }) {
-	const { q, genre, format, status, sortBy, sortOrder } = await searchParams;
+	const { q, genre, format, status, sortBy, sortOrder, page } =
+		await searchParams;
+	const currentPage = Math.max(1, parseInt(page ?? "1", 10));
 	// genre is comma-separated slugs e.g. "action,romance"
 	const activeGenres = genre ? genre.split(",").filter(Boolean) : [];
-	const validSortBy = (SORT_OPTIONS.map((s) => s.value) as string[]).includes(
+	const validSortBy = ["latest", "popular", "rating", "bookmark"].includes(
 		sortBy ?? "",
 	)
 		? (sortBy as SortBy)
 		: "latest";
 	const validSortOrder: SortOrder = sortOrder === "asc" ? "asc" : "desc";
 
-	const [{ data: results, totalRecord }, genres] = await Promise.all([
-		searchKomikAdvanced({
-			q,
-			genre,
-			format,
-			status,
-			sortBy: validSortBy,
-			sortOrder: validSortOrder,
-			pageSize: 20,
-		}),
-		getAllGenres(),
-	]);
+	const [{ data: results, totalRecord, totalPage }, genres, t] =
+		await Promise.all([
+			searchKomikAdvanced({
+				q,
+				genre,
+				format,
+				status,
+				sortBy: validSortBy,
+				sortOrder: validSortOrder,
+				page: currentPage,
+				pageSize: 20,
+			}),
+			getAllGenres(),
+			getDictionary(),
+		]);
+
+	const STATUSES = [
+		{ label: t.search.statusOngoing, value: "ongoing" },
+		{ label: t.search.statusCompleted, value: "completed" },
+		{ label: t.search.statusHiatus, value: "hiatus" },
+	];
+	const SORT_OPTIONS: { label: string; value: SortBy }[] = [
+		{ label: t.search.sortLatest, value: "latest" },
+		{ label: t.search.sortPopular, value: "popular" },
+		{ label: t.search.sortRating, value: "rating" },
+		{ label: t.search.sortBookmark, value: "bookmark" },
+	];
 
 	const topGenres = genres;
 
@@ -68,17 +77,22 @@ export default async function SearchPage({
 			status,
 			sortBy,
 			sortOrder,
+			page: String(currentPage),
 			...overrides,
 		};
+		// reset to page 1 when any filter changes (not when page itself changes)
+		if (!("page" in overrides)) merged.page = "1";
 		for (const [k, v] of Object.entries(merged)) {
-			if (v) params.set(k, v);
+			if (v && !(k === "page" && v === "1")) params.set(k, v);
 		}
 		return `/cari?${params.toString()}`;
 	}
 
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-			<h1 className="font-display text-3xl tracking-wide mb-6">CARI KOMIK</h1>
+			<h1 className="font-display text-3xl tracking-wide mb-6">
+				{t.search.title}
+			</h1>
 
 			{/* Search bar */}
 			<form method="GET" action="/cari" className="mb-6">
@@ -95,14 +109,14 @@ export default async function SearchPage({
 						name="q"
 						type="text"
 						defaultValue={q}
-						placeholder="Cari judul komik…"
+						placeholder={t.search.placeholder}
 						className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
 					/>
 					<button
 						type="submit"
 						className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-background hover:bg-accent-ink transition-colors"
 					>
-						Cari
+						{t.search.button}
 					</button>
 				</div>
 			</form>
@@ -113,7 +127,7 @@ export default async function SearchPage({
 					{/* Genre - multi-select via GenrePills client component */}
 					<div>
 						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted">
-							Genre
+							{t.search.genre}
 						</p>
 						<GenrePills
 							genres={topGenres}
@@ -125,7 +139,7 @@ export default async function SearchPage({
 					{/* Format */}
 					<div>
 						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted">
-							Format
+							{t.search.format}
 						</p>
 						<div className="flex flex-wrap gap-1.5">
 							<Link
@@ -136,7 +150,7 @@ export default async function SearchPage({
 										: "border-line text-muted hover:border-accent hover:text-foreground"
 								}`}
 							>
-								Semua
+								{t.search.all}
 							</Link>
 							{FORMATS.map((f) => (
 								<Link
@@ -157,7 +171,7 @@ export default async function SearchPage({
 					{/* Status */}
 					<div>
 						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted">
-							Status
+							{t.search.status}
 						</p>
 						<div className="flex flex-wrap gap-1.5">
 							<Link
@@ -168,7 +182,7 @@ export default async function SearchPage({
 										: "border-line text-muted hover:border-accent hover:text-foreground"
 								}`}
 							>
-								Semua
+								{t.search.all}
 							</Link>
 							{STATUSES.map((s) => (
 								<Link
@@ -237,7 +251,6 @@ export default async function SearchPage({
 								? `Tidak ada hasil untuk "${q}"`
 								: "Menampilkan 20 komik terbaru"}
 					</p>
-
 					{results.length > 0 ? (
 						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
 							{results.map((k) => (
@@ -252,6 +265,70 @@ export default async function SearchPage({
 							</p>
 						</div>
 					)}
+					{/* Pagination */}
+					{totalPage > 1 && (
+						<div className="mt-8 flex items-center justify-center gap-1 flex-wrap">
+							<Link
+								href={buildUrl({ page: String(currentPage - 1) })}
+								aria-disabled={currentPage <= 1}
+								className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+									currentPage <= 1
+										? "pointer-events-none border-line text-muted opacity-40"
+										: "border-line text-foreground hover:border-accent hover:text-accent"
+								}`}
+							>
+								‹ Prev
+							</Link>
+
+							{Array.from({ length: totalPage }, (_, i) => i + 1)
+								.filter(
+									(p) =>
+										p === 1 ||
+										p === totalPage ||
+										Math.abs(p - currentPage) <= 2,
+								)
+								.reduce<(number | "…")[]>((acc, p, idx, arr) => {
+									if (idx > 0 && p - (arr[idx - 1] as number) > 1)
+										acc.push("…");
+									acc.push(p);
+									return acc;
+								}, [])
+								.map((p, i) =>
+									p === "…" ? (
+										<span
+											key={`ellipsis-${i}`}
+											className="px-1 text-muted text-sm"
+										>
+											…
+										</span>
+									) : (
+										<Link
+											key={p}
+											href={buildUrl({ page: String(p) })}
+											className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+												currentPage === p
+													? "border-accent bg-accent text-background"
+													: "border-line text-foreground hover:border-accent hover:text-accent"
+											}`}
+										>
+											{p}
+										</Link>
+									),
+								)}
+
+							<Link
+								href={buildUrl({ page: String(currentPage + 1) })}
+								aria-disabled={currentPage >= totalPage}
+								className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+									currentPage >= totalPage
+										? "pointer-events-none border-line text-muted opacity-40"
+										: "border-line text-foreground hover:border-accent hover:text-accent"
+								}`}
+							>
+								Next ›
+							</Link>
+						</div>
+					)}{" "}
 				</div>
 			</div>
 		</div>
