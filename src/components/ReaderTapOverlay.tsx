@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, AlignJustify, Settings, Play, Pause } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, AlignJustify, Settings, Play, Pause, Home } from "lucide-react";
 import { Dictionary } from "@/lib/i18n/dictionaries";
 import { useLibraryStore } from "@/lib/store";
 import { Komik } from "@/types/komik";
@@ -41,6 +41,13 @@ export default function ReaderTapOverlay({
     store.addToHistory(komik, currentChapterId, chapterNumber);
     store.markChapterRead(currentChapterId);
   }, [komik.slug, currentChapterId, chapterNumber]);
+
+  useEffect(() => {
+    document.body.classList.add("reading-mode");
+    return () => {
+      document.body.classList.remove("reading-mode");
+    };
+  }, []);
 
   const [showUI, setShowUI] = useState(false);
   const [showList, setShowList] = useState(false);
@@ -193,12 +200,21 @@ export default function ReaderTapOverlay({
         <>
           {/* Top bar */}
           <div className="fixed top-0 inset-x-0 z-20 flex items-center justify-between gap-2 border-b border-line bg-background/95 backdrop-blur px-4 py-3">
-            <Link
-              href={`/komik/${slug}`}
-              className="text-sm text-muted hover:text-foreground truncate max-w-[40%]"
-            >
-              ← {t.back}
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/komik/${slug}`}
+                className="text-sm text-muted hover:text-foreground shrink-0"
+              >
+                ← {t.back}
+              </Link>
+              <Link
+                href="/"
+                className="text-muted hover:text-foreground shrink-0"
+                title="Home"
+              >
+                <Home size={18} />
+              </Link>
+            </div>
             <span className="font-display tracking-wide text-sm shrink-0">
               CHAPTER {chapterNumber}
             </span>
