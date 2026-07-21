@@ -38,7 +38,7 @@ export default async function KomikDetailPage({
 				)}
 				<div className="absolute inset-0 bg-linear-to-b from-background/40 via-background to-background" />
 				<div className="relative mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:grid-cols-[220px_1fr] sm:px-6 sm:py-14">
-					<div className="panel-clip aspect-3/4 w-full max-w-[220px] mx-auto sm:mx-0 rounded-md border border-line bg-surface relative overflow-hidden">
+					<div className="panel-clip aspect-3/4 w-full max-w-55 mx-auto sm:mx-0 rounded-md border border-line bg-surface relative overflow-hidden">
 						{komik.cover && (
 							<Image
 								src={komik.cover}

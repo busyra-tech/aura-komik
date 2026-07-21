@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, Clock } from "lucide-react";
+import { Eye, Clock, Star } from "lucide-react";
 import { Komik } from "@/types/komik";
 
 function getShortTime(dateString?: string) {
@@ -38,12 +38,6 @@ export default function ComicCard({ komik }: { komik: Komik }) {
   const latestChapter = komik.chapters?.[0];
   const latestChapterNum = latestChapter?.number ?? komik.latestChapterNumber;
   const timeAgo = getShortTime(latestChapter?.releasedAt || komik.updatedAt);
-  
-  // Consider recent if < 3 days old for the "UP" badge
-  const isRecent =
-    timeAgo.includes("h") ||
-    timeAgo.includes("m") && !timeAgo.includes("mo") || // simple check, m here means minutes if no 'o' but we use m for both month and min, wait our month is 'm'. Let's just check raw hours.
-    (Date.now() - new Date(latestChapter?.releasedAt || komik.updatedAt).getTime()) < 3 * 24 * 60 * 60 * 1000;
 
   return (
     <Link href={`/komik/${komik.slug}`} className="group flex flex-col h-full gap-2">
@@ -67,16 +61,17 @@ export default function ComicCard({ komik }: { komik: Komik }) {
               {timeAgo}
             </span>
           )}
-          {isRecent && (
-            <span className="flex items-center rounded bg-red-600 px-1 py-0.5 text-[10px] font-bold text-white shadow-sm leading-none">
-              UP
+          {komik.rating !== undefined && (
+            <span className="flex items-center gap-0.5 rounded bg-yellow-500 px-1 py-0.5 text-[10px] font-bold text-white shadow-sm leading-none">
+              <Star size={10} className="fill-white" />
+              {Number(komik.rating).toFixed(1)}
             </span>
           )}
         </div>
 
         {/* Top Right: Flag */}
         {getFlag(komik.type) && (
-          <span className="absolute right-1.5 top-1.5 flex h-[18px] w-[20px] items-center justify-center rounded-sm bg-white text-[12px] shadow-sm z-10 leading-none">
+          <span className="absolute right-1.5 top-1.5 flex h-4.5 w-5 items-center justify-center rounded-sm bg-white text-[12px] shadow-sm z-10 leading-none">
             {getFlag(komik.type)}
           </span>
         )}

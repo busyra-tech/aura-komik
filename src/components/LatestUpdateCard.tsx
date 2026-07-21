@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Clock } from "lucide-react";
+import { Star } from "lucide-react";
 import { Komik } from "@/types/komik";
 import { Dictionary } from "@/lib/i18n/dictionaries";
 
@@ -31,12 +31,6 @@ function getFlag(type: string) {
 
 export default function LatestUpdateCard({ komik, t }: { komik: Komik, t: Dictionary }) {
   const latestChapterNum = komik.latestChapterNumber;
-  const timeAgo = getShortTime(komik.updatedAt, t.common);
-  
-  const isRecent =
-    timeAgo.includes(t.common.timeHours) ||
-    timeAgo.includes(t.common.timeMins) ||
-    (timeAgo.includes(t.common.timeDays) && parseInt(timeAgo) <= 3);
 
   return (
     <div className="group flex flex-col h-full gap-2 relative">
@@ -52,18 +46,19 @@ export default function LatestUpdateCard({ komik, t }: { komik: Komik, t: Dictio
           />
         ) : null}
 
-        {/* Top Left: UP badge */}
-        <div className="absolute left-1.5 top-1.5 flex items-center gap-1 z-10">
-          {isRecent && (
-            <span className="flex items-center rounded bg-red-600 px-1 py-0.5 text-[10px] font-bold text-white shadow-sm leading-none">
-              UP
+        {/* Top Left: Rating badge */}
+        <div className="absolute left-1.5 top-1.5 flex flex-col gap-1 z-10">
+          {komik.rating !== undefined && (
+            <span className="flex items-center gap-0.5 rounded bg-yellow-500 px-1 py-0.5 text-[10px] font-bold text-white shadow-sm leading-none">
+              <Star size={10} className="fill-white" />
+              {Number(komik.rating).toFixed(1)}
             </span>
           )}
         </div>
 
         {/* Top Right: Flag */}
         {getFlag(komik.type) && (
-          <span className="absolute right-1.5 top-1.5 flex h-[18px] w-[20px] items-center justify-center rounded-sm bg-white text-[12px] shadow-sm z-10 leading-none">
+          <span className="absolute right-1.5 top-1.5 flex h-4.5 w-5 items-center justify-center rounded-sm bg-white text-[12px] shadow-sm z-10 leading-none">
             {getFlag(komik.type)}
           </span>
         )}
@@ -87,7 +82,7 @@ export default function LatestUpdateCard({ komik, t }: { komik: Komik, t: Dictio
               <Link
                 key={ch.id}
                 href={`/komik/${komik.slug}/baca/${ch.id}`}
-                className={`flex items-center justify-between rounded-[8px] bg-[#2a2a2a] px-3 py-2 text-[12px] font-semibold transition-colors border border-white/5 ${
+                className={`flex items-center justify-between rounded-lg bg-[#2a2a2a] px-3 py-2 text-[12px] font-semibold transition-colors border border-white/5 ${
                   index === 0
                     ? "text-white hover:bg-[#333]"
                     : "text-white/80 hover:bg-[#333]"
@@ -102,7 +97,7 @@ export default function LatestUpdateCard({ komik, t }: { komik: Komik, t: Dictio
               </Link>
             ))
           ) : (
-            <div className="flex items-center justify-center rounded-[8px] bg-[#2a2a2a] px-3 py-2 text-[12px] text-white/50 border border-white/5">
+            <div className="flex items-center justify-center rounded-lg bg-[#2a2a2a] px-3 py-2 text-[12px] text-white/50 border border-white/5">
               {t.home.noChapter}
             </div>
           )}

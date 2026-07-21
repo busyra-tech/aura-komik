@@ -57,7 +57,7 @@ export function mangaToKomik(m: ApiManga, chapters: Chapter[] = []): Komik {
 		author,
 		rating: m.user_rate,
 		views: m.view_count,
-		updatedAt: m.updated_at,
+		updatedAt: m.latest_chapter_time || m.updated_at,
 		chapters: internalChapters,
 		latestChapterId: m.latest_chapter_id,
 		latestChapterNumber: m.latest_chapter_number,

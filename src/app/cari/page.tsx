@@ -57,7 +57,7 @@ export default async function SearchPage({
 		getAllGenres(),
 	]);
 
-	const topGenres = genres.slice(0, 20);
+	const topGenres = genres;
 
 	function buildUrl(overrides: Record<string, string | undefined>) {
 		const params = new URLSearchParams();

@@ -43,7 +43,7 @@ export default function FormatFilter({ formats }: Props) {
         <>
           <div className="flex gap-3 overflow-x-auto pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 scrollbar-none [&::-webkit-scrollbar]:hidden">
             {current.data.map((k) => (
-              <div key={k.slug} className="shrink-0 w-[140px] sm:w-[160px]">
+              <div key={k.slug} className="w-35 shrink-0 sm:w-40">
                 <ComicCard komik={k} />
               </div>
             ))}
