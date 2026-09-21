@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import {
 	getKomikBySlug,
 	getChapterDetail,
@@ -6,6 +7,38 @@ import {
 } from "@/lib/api";
 import ReaderTapOverlay from "@/components/ReaderTapOverlay";
 import { getDictionary } from "@/lib/i18n";
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ slug: string; chapter: string }>;
+}): Promise<Metadata> {
+	const { slug, chapter: chapterId } = await params;
+	const [komik, chapterDetail] = await Promise.all([
+		getKomikBySlug(slug).catch(() => null),
+		getChapterDetail(chapterId).catch(() => null),
+	]);
+
+	if (!komik || !chapterDetail) {
+		return {
+			title: "Baca Komik — AuraKomik",
+		};
+	}
+
+	const chNum = chapterDetail.chapter_number;
+	const title = `Baca ${komik.title} Chapter ${chNum} — AuraKomik`;
+	const desc = `Baca komik ${komik.title} Chapter ${chNum} online bahasa Indonesia gratis di AuraKomik.`;
+
+	return {
+		title,
+		description: desc,
+		openGraph: {
+			title,
+			description: desc,
+			images: komik.cover ? [{ url: komik.cover }] : [],
+		},
+	};
+}
 
 export default async function ReaderPage({
 	params,

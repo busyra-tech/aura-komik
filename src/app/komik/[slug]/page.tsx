@@ -1,12 +1,42 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { Star, Eye, BookOpen, Clock } from "lucide-react";
 import { getKomikBySlug } from "@/lib/api";
 import { formatViews, timeAgo } from "@/lib/format";
 import ChapterSort from "@/components/ChapterSort";
 import LibraryActions from "@/components/LibraryActions";
 import { getDictionary } from "@/lib/i18n";
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+	const { slug } = await params;
+	const komik = await getKomikBySlug(slug).catch(() => null);
+
+	if (!komik) {
+		return {
+			title: "Komik Tidak Ditemukan — AuraKomik",
+		};
+	}
+
+	const desc = komik.synopsis
+		? komik.synopsis.slice(0, 160).trim() + "..."
+		: `Baca komik ${komik.title} bahasa Indonesia terlengkap di AuraKomik.`;
+
+	return {
+		title: `${komik.title} — AuraKomik`,
+		description: desc,
+		openGraph: {
+			title: `${komik.title} — AuraKomik`,
+			description: desc,
+			images: komik.cover ? [{ url: komik.cover }] : [],
+		},
+	};
+}
 
 export default async function KomikDetailPage({
 	params,
